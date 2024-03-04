@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form - Submit</title>
+</head>
+<body>
+    {% if session %}
+    <!-- show below only if session exist -->
+    <h1>Welcome, {{session}}</h1>
+    <form action="/logout">
+        <input type="submit" value="Logout" />
+    </form>
+
+    <!-- show flashed message -->
+    {% for message in get_flashed_messages() %}
+        <h1>{{ message }}</h1>
+    {% endfor %}
+
+    <h2>GET</h2>
+    <form action="/submit" method="get">
+        <h2>Search</h2>
+        <p>Machine ID: <input type="text" name="machine_id"><input type="submit" value="Search"></p>
+    </form>
+
+    <table>
+        <tr>
+          <td>Machine ID</td>
+          <td>Maintain date</td>
+          <td>Interval</td>
+          <td>Next Maintain date</td>
+          <td>Maintainer</td>
+        </tr>
+        
+        {% if search %}
+        <tr>
+            {% for cell in search %}
+                <td>{{cell}}</td>
+            {% endfor %}
+            {% if session == search[4] %}
+            <td>
+                <form action="/remove" method="post">
+                <input type="hidden" name="machine_id" value="{{search[0]}}">
+                    <input type="submit" value="Remove">
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endif %}
+    </table>
+
+    <h2>POST</h2>
+    <form action="/submit" method="post">
+        <p>Machine ID: <input type="text" name="machine_id"></p>
+        <p>Start Date: <input type="date" name="maintain_date"></p>
+        <p>Interval: <select name="interval">
+            {% for n in range(1,32)%}
+                <option value="{{n}}">{{n}}</option>
+            {% endfor %}
+        </select></p>
+        <p><input type="submit" value="Submit"></p>
+    </form>
+    
+    <table>
+        <tr>
+          <td>Machine ID</td>
+          <td>Maintain Date</td>
+          <td>Interval</td>
+          <td>Next Maintain Date</td>
+          <td>Maintainer</td>
+        </tr>
+
+        {% for k,v in data.items() %}
+        <tr>
+            <td>{{k}}</td>
+            {% for cell in v %}
+                <td>{{cell}}</td>
+            {% endfor %}
+            {% if session == v[3] %}
+            <td>
+                <form action="/remove" method="post">
+                    <input type="hidden" name="machine_id" value="{{k}}">
+                    <input type="submit" value="Remove">
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <!-- show below only if session does not exist -->
+    <h1>Login</h1>
+    <form action="/login" method="post">
+        <label>E-mail</label>
+        <input type="text" name="username" required>
+        <input type="submit" value="Login">
+    </form>
+    {% endif %}
+</body>
+</html>
